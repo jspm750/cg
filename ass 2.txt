@@ -1,0 +1,122 @@
+#include<windows.h> 
+#include<GL/glut.h> 
+#include<iostream> 
+#include<math.h> 
+#include<stdio.h> 
+using namespace std; 
+int option;
+void drawlineDDA(int xx1,int yy1,int xx2,int yy2,int s){ 
+float x,y,dx,dy,length;
+int i,t=0; 
+dx=abs(xx2-xx1); 
+dy=abs(yy2-yy1); 
+if(dx>=dy)
+length=dx; 
+else
+length=dy; 
+dx=abs(xx2-xx1)/length; 
+dy=abs(yy2-yy1)/length; 
+x=xx1;
+y=yy1; 
+i=1;
+glBegin(GL_POINTS); 
+glVertex2i(x,y); 
+glEnd(); 
+while(i<=length){
+switch(s) {
+case 1:
+glBegin(GL_POINTS); 
+glVertex2i(x,y); 
+glEnd();
+break; 
+case 2:
+if(i%2==0) {
+glBegin(GL_POINTS); 
+glVertex2i(x,y); 
+glEnd();
+}
+break; 
+case 3:
+if(i%15==0) {
+if(t==0) 
+t=1;
+else
+t=0;
+}
+if(t==0) { 
+glBegin(GL_POINTS); 
+glVertex2i(x,y); 
+glEnd(); }
+break; 
+case 4:
+glPointSize(3); 
+glBegin(GL_POINTS); 
+glVertex2i(x,y); 
+glEnd();
+break;
+}
+x=x+dx; 
+y=y+dx; 
+i++;
+}
+}
+void display() { 
+glFlush();
+}
+void init() { 
+glClear(GL_COLOR_BUFFER_BIT); 
+glClearColor(0.0,0.0,0.0,1.0); 
+glMatrixMode(GL_PROJECTION); 
+gluOrtho2D(-500.0,500.0,-500.0,500.0);
+}
+void myKeyboard(unsigned char key,int mouseX,int mouseY) { 
+switch(key) {
+case(27):
+exit(0); }
+}
+void myMouse(int button,int state,int x,int y) { 
+static int x1,y1,x2,y2;
+static int pt=0;
+if(button==GLUT_LEFT_BUTTON && state==GLUT_DOWN) { 
+if(pt==0) {
+glClear(GL_COLOR_BUFFER_BIT); 
+glBegin(GL_LINES);
+glVertex2i(-500,0); 
+glVertex2i(500,0); 
+glVertex2i(0,-500);
+glVertex2i(0,500); 
+glEnd();
+pt++;
+}
+else {
+if(pt==1) { 
+x1=x; 
+y1=y; 
+pt++; }
+else if(pt==2) { 
+x2=x;
+y2=y;
+drawlineDDA(-500+2*x1,500-2*y1,-500+2*x2,500-2*y2,option); 
+pt=0;
+}
+}
+}
+glFlush();}
+int main(int argc,char **argv) { 
+cout<<"1.Simple line"<<endl; 
+cout<<"2.Dotted line"<<endl; 
+cout<<"3.Dashed line"<<endl; 
+cout<<"4.Solid line"<<endl; 
+cout<<"ENTER OPTION: ";
+cin>>option; 
+glutInit(&argc, argv);
+glutInitDisplayMode(GLUT_SINGLE|GLUT_RGB); 
+glutInitWindowSize(500,500); 
+glutInitWindowPosition(0,0); 
+glutCreateWindow("DDA ALGORITHM");
+glutMouseFunc(myMouse); 
+glutKeyboardFunc(myKeyboard); 
+init();
+glutDisplayFunc(display); 
+glutMainLoop();
+}
